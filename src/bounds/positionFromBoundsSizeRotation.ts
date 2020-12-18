@@ -10,11 +10,11 @@ import { extend } from './extend';
 /**
  * Gets your bounds, the map size and rotation and calculates center and zoom
  */
-export function centerZoomFromBoundsSizeRotation(
+export function positionFromBoundsSizeRotation(
     bounds: Bounds,
     mapSize: number[],
-    degRotation: number,
-) {
+    degRotation = 0,
+): { center: number[]; zoom: number } {
     const rotation = degToRad(degRotation);
 
     const a = [0, 0];
@@ -29,6 +29,7 @@ export function centerZoomFromBoundsSizeRotation(
 
     const centerVector = [0, 0];
     center(centerVector, rotatedBounds);
+    rotate(centerVector, centerVector, rotation);
 
     return {
         center: mapToGeoPoint(centerVector),

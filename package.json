@@ -1,0 +1,23 @@
+{
+    "name": "@2gis/mapgl-utils",
+    "version": "0.0.1",
+    "description": "",
+    "main": "dist/index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/2gis/mapgl-utils.git"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/2gis/mapgl-utils/issues"
+    },
+    "homepage": "https://github.com/2gis/mapgl-utils#readme",
+    "scripts": {
+        "build": "tsc",
+        "test": "npm run prettier",
+        "prettier": "prettier --check \"./**/*.{ts}\""
+    },
+    "devDependencies": {
+        "typescript": "^4.1.3"
+    }
+}

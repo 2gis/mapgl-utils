@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@2gis/mapgl-utils/*": ["../src/*"]
+        },
+        "module": "ES2020",
+        "lib": ["dom", "es6"],
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true
+    },
+    "include": ["project.d.ts", "index.ts", "suites/*"]
+}

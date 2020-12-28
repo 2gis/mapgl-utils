@@ -3,7 +3,9 @@ import { clamp } from '../common/clamp';
 import { degToRad } from '../common/degToRad';
 
 /**
- * Projects point in geographical coordinates to point in map coordinates
+ * Projects point in geographical coordinates to point in map coordinates.
+ *
+ * ⚠ WARNING: Stable compatibility with the MapGL API is not guaranteed. The function depends on the internal map logic that may be changed in the future.
  */
 export function getToMapPoint(geoPoint: number[]): number[] {
     const worldHalf = worldSize / 2;

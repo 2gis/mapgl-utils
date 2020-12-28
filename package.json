@@ -1,7 +1,7 @@
 {
     "name": "@2gis/mapgl-utils",
     "version": "0.0.1",
-    "description": "",
+    "description": "Utility funtions to use with MapGL API",
     "main": "dist/index.js",
     "repository": {
         "type": "git",
@@ -17,10 +17,11 @@
         "dev": "tsc --watch",
         "test": "npm run prettier",
         "prettier": "prettier --check \"./**/*.{ts}\"",
-        "prepublishOnly": "rimraf dist && npm run build"
+        "prepublishOnly": "shx rm -rf dist && npm run build && shx cp -r dist/* .",
+        "postpublish": "git clean -df"
     },
     "devDependencies": {
-        "rimraf": "^3.0.2",
+        "shx": "^0.3.3",
         "typescript": "^4.1.3"
     }
 }

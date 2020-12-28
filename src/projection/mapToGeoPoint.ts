@@ -1,6 +1,11 @@
 import { worldSize } from './constants';
 import { radToDeg } from '../common/radToDeg';
 
+/**
+ * Projects point in map coordinates to point in geographical coordinates.
+ *
+ * ⚠ WARNING: Stable compatibility with the MapGL API is not guaranteed. The function depends on the internal map logic that may be changed in the future.
+ */
 export function mapToGeoPoint(mapPoint: number[]): number[] {
     const geoPoint = [0, 0];
 

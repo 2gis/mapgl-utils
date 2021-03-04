@@ -12,20 +12,11 @@ export function notSupportedReason(options?: { failIfMajorPerformanceCaveat: boo
     if (!isBrowser()) {
         return 'not a browser';
     }
-    if (!isArraySupported()) {
-        return 'insufficent Array support';
-    }
     if (!isFunctionSupported()) {
         return 'insufficient Function support';
     }
-    if (!isObjectSupported()) {
-        return 'insufficient Object support';
-    }
     if (!isJSONSupported()) {
         return 'insufficient JSON support';
-    }
-    if (!isDomMethodsSupported()) {
-        return 'insufficient DOM support';
     }
     if (!isWorkerSupported()) {
         return 'insufficient worker support';
@@ -36,8 +27,20 @@ export function notSupportedReason(options?: { failIfMajorPerformanceCaveat: boo
     if (!isCanvasGetImageDataSupported()) {
         return 'insufficient Canvas/getImageData support';
     }
-    if (!isWebGLSupportedCached((options && options.failIfMajorPerformanceCaveat) || false)) {
-        return 'insufficient WebGL support';
+    const webGLSupports = isWebGLSupportedCached(
+        (options && options.failIfMajorPerformanceCaveat) || false,
+    );
+    if (!webGLSupports.ok) {
+        return `insufficient WebGL support${webGLSupports.msg ? `: ${webGLSupports.msg}` : ''}`;
+    }
+    if (!isArraySupported()) {
+        return 'insufficient Array support';
+    }
+    if (!isObjectSupported()) {
+        return 'insufficient Object support';
+    }
+    if (!isDomMethodsSupported()) {
+        return 'insufficient DOM support';
     }
     if (!isNotIE()) {
         return 'insufficient ECMAScript 6 support';
@@ -131,8 +134,8 @@ function isCanvasGetImageDataSupported(): boolean {
     return imageData && imageData.width === canvas.width;
 }
 
-const isWebGLSupportedCache: { [key: string]: boolean } = {};
-function isWebGLSupportedCached(failIfMajorPerformanceCaveat: boolean): boolean {
+const isWebGLSupportedCache: { [key: string]: WebGLSupported } = {};
+function isWebGLSupportedCached(failIfMajorPerformanceCaveat: boolean): WebGLSupported {
     const optionsKey = String(failIfMajorPerformanceCaveat);
     if (isWebGLSupportedCache[optionsKey] === undefined) {
         isWebGLSupportedCache[optionsKey] = isWebGLSupported(failIfMajorPerformanceCaveat);
@@ -158,19 +161,28 @@ function getWebGLContext(failIfMajorPerformanceCaveat: boolean): WebGLRenderingC
         canvas.getContext('experimental-webgl', attributes)) as WebGLRenderingContext;
 }
 
-function isWebGLSupported(failIfMajorPerformanceCaveat: boolean): boolean {
+interface WebGLSupported {
+    ok: boolean;
+    msg?: string;
+}
+
+function isWebGLSupported(failIfMajorPerformanceCaveat: boolean): WebGLSupported {
     const gl = getWebGLContext(failIfMajorPerformanceCaveat);
     if (!gl) {
-        return false;
+        return { ok: false, msg: 'error on get context' };
     }
 
-    const extensionSupported = Boolean(
-        gl.getExtension('OES_vertex_array_object') &&
-            gl.getExtension('OES_element_index_uint') &&
-            gl.getExtension('OES_standard_derivatives'),
-    );
-    if (!extensionSupported) {
-        return false;
+    for (const name of [
+        'OES_element_index_uint',
+        'OES_standard_derivatives',
+        'OES_vertex_array_object',
+    ]) {
+        if (!gl.getExtension(name)) {
+            return {
+                ok: false,
+                msg: `${name} extension is not supported`,
+            };
+        }
     }
 
     // Try compiling a shader and get its compile status. Some browsers like Brave block this API
@@ -182,15 +194,20 @@ function isWebGLSupported(failIfMajorPerformanceCaveat: boolean): boolean {
         // some older browsers throw an exception that `createShader` is not defined
         // so handle this separately from the case where browsers block `createShader`
         // for security reasons
-        return false;
+        return {
+            ok: false,
+            msg: 'browser block shader API',
+        };
     }
 
     if (!shader || gl.isContextLost()) {
-        return false;
+        return { ok: false };
     }
     gl.shaderSource(shader, 'void main() {}');
     gl.compileShader(shader);
-    return gl.getShaderParameter(shader, gl.COMPILE_STATUS) === true;
+    return {
+        ok: gl.getShaderParameter(shader, gl.COMPILE_STATUS) === true,
+    };
 }
 
 function isNotIE() {
